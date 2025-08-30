@@ -3,13 +3,12 @@ const express = require("express");
 
 const eventRoutes = require("./routes/events");
 const authRoutes = require("./routes/auth");
-const fabs = require("./routes/fav");
+const fabs = require("./routes/fav"); 
 const app = express();
 const port = 3000;
 
 // Parse JSON body
 app.use(express.json());
-
 // Parse form-urlencoded body (optional, if you use forms)
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,6 +16,11 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
   next();
 });
 
