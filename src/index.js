@@ -4,6 +4,9 @@ import eventRoutes from "./routes/events.js";
 import authRoutes from "./routes/auth.js";
 import fabs from "./routes/fav.js";
 import pool from "./config/db.js";
+import userRoutes from "./routes/userRoutes.js"
+import errorHandler from "./middlewares/errorHandler.js";
+import createUserTable from "./data/createUserTable.js";
 
 const app = express();
 const port = 3000;
@@ -18,10 +21,16 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(errorHandler);
+
 // Routes
+app.use("/api", userRoutes);
 app.use(authRoutes);
 app.use("/fav", fabs);
 app.use("/events", eventRoutes);
+
+// Create the user table
+createUserTable();
 
 // Test PostgreSQL connection
 app.get("/postgres", async (req, res) => {
