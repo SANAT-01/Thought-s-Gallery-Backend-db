@@ -1,17 +1,16 @@
-const bodyParser = require("body-parser");
-const express = require("express");
+import express from "express";
+import bodyParser from "body-parser";
+import eventRoutes from "./routes/events.js";
+import authRoutes from "./routes/auth.js";
+import fabs from "./routes/fav.js";
+import pool from "./config/db.js";
 
-const eventRoutes = require("./routes/events");
-const authRoutes = require("./routes/auth");
-const fabs = require("./routes/fav"); 
 const app = express();
 const port = 3000;
 
-// Parse JSON body
+// Middlewares
 app.use(express.json());
-// Parse form-urlencoded body (optional, if you use forms)
 app.use(express.urlencoded({ extended: true }));
-
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE");
@@ -19,19 +18,22 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
-
+// Routes
 app.use(authRoutes);
 app.use("/fav", fabs);
 app.use("/events", eventRoutes);
 
-app.use((error, req, res, next) => {
-  const status = error.status || 500;
-  const message = error.message || "Something went wrong.";
-  res.status(status).json({ message: message });
+// Test PostgreSQL connection
+app.get("/postgres", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT CURRENT_DATABASE()");
+    res.json({ database: result.rows[0].current_database });
+  } catch (error) {
+    console.error("Error fetching database name:", error);
+    res.status(500).json({ message: "Error fetching database name." });
+  }
 });
 
-app.listen(port);
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});

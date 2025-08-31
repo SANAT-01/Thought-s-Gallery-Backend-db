@@ -12,5 +12,4 @@ class NotAuthError {
   }
 }
 
-exports.NotFoundError = NotFoundError;
-exports.NotAuthError = NotAuthError;
+export { NotFoundError, NotAuthError };
