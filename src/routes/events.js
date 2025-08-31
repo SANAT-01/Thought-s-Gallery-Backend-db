@@ -1,4 +1,5 @@
-const express = require("express");
+import express from "express";
+
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -35,26 +36,27 @@ router.patch("/user/:id", async (req, res, next) => {
 });
 
 router.get("/fav", async (req, res, next) => {
-   console.log("events/fav");
-   res.json({ message: "Event favorites fetched." });
+  console.log("events/fav");
+  res.json({ message: "Event favorites fetched." });
 });
 
 // router.post("/fav", async (req, res, next) => {
-//    const data = req.body;
+//   const data = req.body;
 // });
 
 // router.patch("/fav/:id", async (req, res, next) => {
-//    const data = req.body;
+//   const data = req.body;
 // });
 
 router.delete("/:id", async (req, res, next) => {
-   console.log("events/:id");
-   res.json({ message: "Event deleted." });
+  console.log("events/:id");
+  res.json({ message: "Event deleted." });
 });
 
-router.delete("users/:id", async (req, res, next) => {
-   console.log("events/users/:id");
-   res.json({ message: "Event user deleted." });
+// ⚠️ Missing slash in your original path ("users/:id") → should be "/users/:id"
+router.delete("/users/:id", async (req, res, next) => {
+  console.log("events/users/:id");
+  res.json({ message: "Event user deleted." });
 });
 
-module.exports = router;
+export default router;
