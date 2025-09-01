@@ -1,5 +1,4 @@
 import { 
-    createUserService, 
     deleteUserService, 
     getAllUsersService, 
     getUserByIdService, 
@@ -9,17 +8,6 @@ import {
 // Common response handler
 const handleResponse = (res, status, data = null, message = '') => {
     res.status(status).json({ success: status < 400, status, data, message });
-};
-
-// Create a new user
-const createUser = async (req, res, next) => {
-    const { username, email, password } = req.body;
-    try {
-        const user = await createUserService({ username, email, password });
-        handleResponse(res, 201, user, 'User created successfully');
-    } catch (error) {
-        next(error);
-    }
 };
 
 // Get all users
@@ -65,4 +53,4 @@ const deleteUser = async (req, res, next) => {
     }
 };
 
-export { createUser, getUsers, getUserById, updateUser, deleteUser };
+export { getUsers, getUserById, updateUser, deleteUser };
