@@ -8,7 +8,7 @@ const { compare } = bcrypt;
 const KEY = "supersecret";
 
 const createJSONToken = (email) => {
-  return sign({ email }, KEY, { expiresIn: "10m" });
+  return sign({ email }, KEY, { expiresIn: "1h" });
 }
 
 const validateJSONToken = (token) => {
@@ -38,7 +38,7 @@ const checkAuthMiddleware = (req, res, next) => {
   const authToken = authFragments[1];
   try {
     const validatedToken = validateJSONToken(authToken);
-    req.token = validatedToken;
+    req.user = validatedToken;
   } catch (error) {
     console.log("NOT AUTH. TOKEN INVALID.");
     return next(new NotAuthError("Not authenticated."));
