@@ -12,16 +12,6 @@ export const getUserByIdService = async (id) => {
     return rows[0];
 }
 
-// Create a new user
-export const createUserService = async (user) => {
-    const { username, email, password } = user;
-    const { rows } = await pool.query(
-        'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-        [username, email, password]
-    );
-    return rows[0];
-}
-
 // Update a user by ID
 export const updateUserService = async (id, user) => {
     const { username, email, password } = user;

@@ -1,10 +1,7 @@
 import express from "express";
-import bodyParser from "body-parser";
-import eventRoutes from "./routes/events.js";
-import authRoutes from "./routes/auth.js";
-import fabs from "./routes/fav.js";
 import pool from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js"
+import authRoutes from "./routes/authRoutes.js"
 import errorHandler from "./middlewares/errorHandler.js";
 import createUserTable from "./data/createUserTable.js";
 
@@ -21,13 +18,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(errorHandler);
-
 // Routes
-app.use("/api", userRoutes);
 app.use(authRoutes);
-app.use("/fav", fabs);
-app.use("/events", eventRoutes);
+app.use("/api", userRoutes);
 
 // Create the user table
 createUserTable();
@@ -42,6 +35,9 @@ app.get("/postgres", async (req, res) => {
     res.status(500).json({ message: "Error fetching database name." });
   }
 });
+
+// Error handling (after routes)
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

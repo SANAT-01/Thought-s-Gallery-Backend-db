@@ -1,5 +1,4 @@
 import { 
-    createUserService, 
     deleteUserService, 
     getAllUsersService, 
     getUserByIdService, 
@@ -9,17 +8,6 @@ import {
 // Common response handler
 const handleResponse = (res, status, data = null, message = '') => {
     res.status(status).json({ success: status < 400, status, data, message });
-};
-
-// Create a new user
-const createUser = async (req, res, next) => {
-    const { username, email, password } = req.body;
-    try {
-        const user = await createUserService({ username, email, password });
-        handleResponse(res, 201, user, 'User created successfully');
-    } catch (error) {
-        next(error);
-    }
 };
 
 // Get all users
@@ -46,6 +34,17 @@ const getUserById = async (req, res, next) => {
 // Update a user by ID
 const updateUser = async (req, res, next) => {
     try {
+        const userId = req.params.id;
+        // Get user from DB first
+        const existingUser = await getUserByIdService(userId);
+        if (!existingUser) {
+            return handleResponse(res, 404, null, 'User not found');
+        }
+
+        // Ownership check: email from token must match DB
+        if (req.user.email !== existingUser.email) {
+            return handleResponse(res, 403, null, 'Forbidden: Not your account');
+        }
         const user = await updateUserService(req.params.id, req.body);
         if (!user) return handleResponse(res, 404, null, 'User not found');
         handleResponse(res, 200, user, 'User updated successfully');
@@ -57,6 +56,18 @@ const updateUser = async (req, res, next) => {
 // Delete a user by ID
 const deleteUser = async (req, res, next) => {
     try {
+        const userId = req.params.id;
+
+        // Get user from DB
+        const existingUser = await getUserByIdService(userId);
+        if (!existingUser) {
+            return handleResponse(res, 404, null, 'User not found');
+        }
+
+        // Ownership check
+        if (req.user.email !== existingUser.email) {
+            return handleResponse(res, 403, null, 'Forbidden: Not your account');
+        }
         const deleted = await deleteUserService(req.params.id);
         if (!deleted) return handleResponse(res, 404, null, 'User not found');
         handleResponse(res, 200, null, 'User deleted successfully');
@@ -65,4 +76,4 @@ const deleteUser = async (req, res, next) => {
     }
 };
 
-export { createUser, getUsers, getUserById, updateUser, deleteUser };
+export { getUsers, getUserById, updateUser, deleteUser };
