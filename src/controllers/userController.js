@@ -4,11 +4,7 @@ import {
     getUserByIdService, 
     updateUserService 
 } from "../models/userModel.js";
-
-// Common response handler
-const handleResponse = (res, status, data = null, message = '') => {
-    res.status(status).json({ success: status < 400, status, data, message });
-};
+import handleResponse from "../util/response.js";
 
 // Get all users
 const getUsers = async (req, res, next) => {

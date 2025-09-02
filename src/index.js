@@ -4,6 +4,7 @@ import userRoutes from "./routes/userRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
 import errorHandler from "./middlewares/errorHandler.js";
 import createUserTable from "./data/createUserTable.js";
+import createThoughtTable from "./data/createThoughtTable.js";
 
 const app = express();
 const port = 3000;
@@ -24,6 +25,7 @@ app.use("/api", userRoutes);
 
 // Create the user table
 createUserTable();
+createThoughtTable();
 
 // Test PostgreSQL connection
 app.get("/postgres", async (req, res) => {
