@@ -1,39 +1,52 @@
 import pool from "../config/db.js";
 
 export const getThoughtsService = async (user_id) => {
-  let query = "SELECT * FROM thoughts";
-  const values = [];
+    const values = [];
+    let query = "";
+    if (user_id) {
+        query = "SELECT * FROM thoughts WHERE user_id = $1";
+        values.push(user_id);
+    } else {
+        query = `SELECT
+        t.id,
+        t.content,
+        t.user_id,
+        t.created_at,
+        -- Subquery to count likes for this specific thought
+        (SELECT COUNT(*) FROM likes WHERE thought_id = t.id) AS likes,
+        -- Subquery to count dislikes for this specific thought
+        (SELECT COUNT(*) FROM dislikes WHERE thought_id = t.id) AS dislikes
+        FROM
+            thoughts t
+        ORDER BY
+        t.created_at DESC; -- Optional: order by most recent thoughts`;
+    }
 
-  if (user_id) {
-    query += " WHERE user_id = $1";
-    values.push(user_id);
-  }
-
-  const result = await pool.query(query, values);
-  return result.rows;
+    const result = await pool.query(query, values);
+    return result.rows;
 };
 
 export const getThoughtByIdService = async (id) => {
-  const { rows } = await pool.query("SELECT * FROM thoughts WHERE id = $1", [
-    id,
-  ]);
-  return rows[0];
+    const { rows } = await pool.query("SELECT * FROM thoughts WHERE id = $1", [
+        id,
+    ]);
+    return rows[0];
 };
 
 export const createThoughtService = async (thoughtData) => {
-  const { user_id, content } = thoughtData;
-  const { rows } = await pool.query(
-    "INSERT INTO thoughts (user_id, content) VALUES ($1, $2) RETURNING *",
-    [user_id, content]
-  );
-  return rows[0];
+    const { user_id, content } = thoughtData;
+    const { rows } = await pool.query(
+        "INSERT INTO thoughts (user_id, content) VALUES ($1, $2) RETURNING *",
+        [user_id, content]
+    );
+    return rows[0];
 };
 
 export const updateThoughtService = async (id, thoughtData) => {
-  const { user_id, content } = thoughtData;
-  const { rows } = await pool.query(
-    "UPDATE thoughts SET user_id = $1, content = $2 WHERE id = $3 RETURNING *",
-    [user_id, content, id]
-  );
-  return rows[0];
+    const { user_id, content } = thoughtData;
+    const { rows } = await pool.query(
+        "UPDATE thoughts SET user_id = $1, content = $2 WHERE id = $3 RETURNING *",
+        [user_id, content, id]
+    );
+    return rows[0];
 };

@@ -1,25 +1,35 @@
 import express from "express";
 import {
-  deleteUser,
-  getUserById,
-  getUsers,
-  updateUser,
+    deleteUser,
+    getUserById,
+    getUsers,
+    updateUser,
 } from "../controllers/userController.js";
 import { validateUpdateUser } from "../middlewares/userValidate.js";
 import { checkAuth } from "../util/auth.js";
 import {
-  getThoughtById,
-  getThoughts,
-  postThought,
-  updateThought,
+    getThoughtById,
+    getThoughts,
+    postThought,
+    updateThought,
 } from "../controllers/thoughtController.js";
 import validateThought from "../middlewares/thoughtValidate.js";
 import {
-  getThoughtComments,
-  postThoughtComments,
+    getThoughtComments,
+    postThoughtComments,
 } from "../controllers/thoughtCommentController.js";
 import { validate } from "uuid";
 import { validatePostComment } from "../middlewares/validateComment.js";
+import {
+    validatePostDislike,
+    validatePostLike,
+} from "../middlewares/validateLikeDislike.js";
+import {
+    getThoughtDislikes,
+    getThoughtLikes,
+    postDislike,
+    postLike,
+} from "../controllers/likedislikeController.js";
 
 const router = express.Router();
 
@@ -31,15 +41,25 @@ router.get("/user/:id", checkAuth, getUserById);
 router.get("/thoughts", checkAuth, getThoughts);
 router.get("/thought/:id", checkAuth, getThoughtById);
 router.get("/thought/:id/comments", checkAuth, getThoughtComments);
+router.get("/thought/:id/likes", checkAuth, getThoughtLikes);
+router.get("/thought/:id/dislikes", checkAuth, getThoughtDislikes);
 
 // POST
 // thoughts
 router.post("/thought", checkAuth, validateThought, postThought);
 router.post(
-  "/thought/:id/comments",
-  checkAuth,
-  validatePostComment,
-  postThoughtComments
+    "/thought/:id/comments",
+    checkAuth,
+    validatePostComment,
+    postThoughtComments
+);
+// Likes and Dislikes
+router.post("/thought/:id/like", checkAuth, validatePostLike, postLike);
+router.post(
+    "/thought/:id/dislike",
+    checkAuth,
+    validatePostDislike,
+    postDislike
 );
 
 // PUT
