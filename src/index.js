@@ -1,10 +1,14 @@
 import express from "express";
 import pool from "./config/db.js";
-import userRoutes from "./routes/userRoutes.js"
+import userRoutes from "./routes/apiRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
 import errorHandler from "./middlewares/errorHandler.js";
 import createUserTable from "./data/createUserTable.js";
 import createThoughtTable from "./data/createThoughtTable.js";
+import createFollowsTable from "./data/createFollowTable.js";
+import createCommentsTable from "./data/createCommentTable.js";
+import createLikesTable from "./data/createLikeTable.js";
+import createDislikesTable from "./data/createDislikeTable.js";
 
 const app = express();
 const port = 5173;
@@ -31,9 +35,24 @@ app.use((req, res, next) => {
 app.use(authRoutes);
 app.use("/api", userRoutes);
 
-// Create the user table
-createUserTable();
-createThoughtTable();
+// --- Database Initialization ---
+// This async function ensures tables are created in the correct order
+const initializeDatabase = async () => {
+  try {
+    console.log("Initializing database...");
+    await createUserTable();
+    await createThoughtTable(); // Depends on users
+    await createFollowsTable(); // Depends on users
+    await createCommentsTable(); // Depends on users and thoughts
+    await createLikesTable(); // Depends on users and thoughts
+    await createDislikesTable(); // Depends on users and thoughts
+    console.log("Database initialized successfully.");
+  } catch (error) {
+    console.error("Failed to initialize database:", error);
+    // Exit the process if the database setup fails, as the app cannot run.
+    process.exit(1);
+  }
+};
 
 // Test PostgreSQL connection
 app.get("/postgres", async (req, res) => {
@@ -49,6 +68,7 @@ app.get("/postgres", async (req, res) => {
 // Error handling (after routes)
 app.use(errorHandler);
 
-app.listen(port, () => {
+app.listen(port, async () => {
+  await initializeDatabase();
   console.log(`Server is running on http://localhost:${port}`);
 });
