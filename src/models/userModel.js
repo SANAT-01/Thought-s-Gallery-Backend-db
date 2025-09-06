@@ -14,10 +14,10 @@ export const getUserByIdService = async (id) => {
 
 // Update a user by ID
 export const updateUserService = async (id, user) => {
-    const { username, email, password } = user;
+    const { username } = user;
     const { rows } = await pool.query(
-        'UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4 RETURNING *',
-        [username, email, password, id]
+        'UPDATE users SET username = $1 WHERE id = $2 RETURNING *',
+        [username, id]
     );
     return rows[0];
 }

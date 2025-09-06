@@ -7,17 +7,25 @@ import createUserTable from "./data/createUserTable.js";
 import createThoughtTable from "./data/createThoughtTable.js";
 
 const app = express();
-const port = 3000;
+const port = 5173;
 
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
+  // Allow frontend (Next.js at 3000) to call backend (5173)
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE");
+  // Allow all needed HTTP methods
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  // Allow headers
   res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
   next();
 });
+
 
 // Routes
 app.use(authRoutes);
