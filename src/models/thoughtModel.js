@@ -1,8 +1,17 @@
 import pool from '../config/db.js';
 
-export const getThoughtsService = async () => {
-    const { rows } = await pool.query('SELECT * FROM thoughts');
-    return rows;
+export const getThoughtsService = async (user_id) => {
+    console.log(user_id)
+  let query = "SELECT * FROM thoughts";
+  const values = [];
+
+  if (user_id) {
+    query += " WHERE user_id = $1";
+    values.push(user_id);
+  }
+
+  const result = await pool.query(query, values);
+  return result.rows;
 };
 
 export const getThoughtByIdService = async (id) => {

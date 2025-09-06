@@ -5,7 +5,8 @@ import handleResponse from "../util/response.js";
 // Get thoughts
 export const getThoughts = async (req, res, next) => {
     try {
-        const thoughts = await getThoughtsService();
+        const { user_id } = req.query;
+        const thoughts = await getThoughtsService(user_id);
         handleResponse(res, 200, thoughts, 'Thoughts retrieved successfully');
     } catch (error) {
         next(error);

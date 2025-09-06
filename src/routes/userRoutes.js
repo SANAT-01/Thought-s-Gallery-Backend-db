@@ -1,6 +1,6 @@
 import express from 'express'; 
 import { deleteUser, getUserById, getUsers, updateUser } from '../controllers/userController.js';
-import validateUser from '../middlewares/userValidate.js';
+import { validateUpdateUser} from '../middlewares/userValidate.js';
 import { checkAuth } from '../util/auth.js';
 import { getThoughtById, getThoughts, postThought, updateThought } from '../controllers/thoughtController.js';
 import validateThought from '../middlewares/thoughtValidate.js';
@@ -21,7 +21,7 @@ router.post('/thought', checkAuth, validateThought, postThought);
 
 // PUT 
 // user/:id
-router.put('/user/:id', checkAuth, validateUser, updateUser);
+router.put('/user/:id', checkAuth, validateUpdateUser, updateUser);
 
 // thoughts/:id
 router.put('/thought/:id', checkAuth, validateThought, updateThought);
