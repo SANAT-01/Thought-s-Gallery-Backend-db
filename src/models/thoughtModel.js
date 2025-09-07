@@ -33,16 +33,39 @@ export const getThoughtsService = async (user_id) => {
 };
 
 export const getThoughtByIdService = async (id) => {
-    const { rows } = await pool.query("SELECT * FROM thoughts WHERE id = $1", [
-        id,
-    ]);
+    const { rows } = await pool.query(
+        `
+        SELECT t.id, t.content, t.user_id, t.created_at, u.username, u.profile_picture
+        FROM thoughts t
+        JOIN
+            users u ON t.user_id = u.id
+        WHERE t.id = $1`,
+        [id]
+    );
     return rows[0];
 };
 
 export const createThoughtService = async (thoughtData) => {
     const { user_id, content } = thoughtData;
     const { rows } = await pool.query(
-        "INSERT INTO thoughts (user_id, content) VALUES ($1, $2) RETURNING *",
+        `WITH inserted_thought AS (
+            -- Step 1: Insert the new thought and use RETURNING to capture it.
+            INSERT INTO thoughts (user_id, content)
+            VALUES ($1, $2)
+            RETURNING *
+        )
+        -- Step 2: Select from the captured thought and join it with the users table.
+        SELECT
+            it.id,
+            it.content,
+            it.user_id,
+            it.created_at,
+            u.username,
+            u.profile_picture
+        FROM
+            inserted_thought it
+        JOIN
+            users u ON it.user_id = u.id;`,
         [user_id, content]
     );
     return rows[0];

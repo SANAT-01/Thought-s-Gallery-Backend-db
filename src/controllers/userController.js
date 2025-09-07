@@ -1,8 +1,8 @@
-import { 
-    deleteUserService, 
-    getAllUsersService, 
-    getUserByIdService, 
-    updateUserService 
+import {
+    deleteUserService,
+    getAllUsersService,
+    getUserByIdService,
+    updateUserService,
 } from "../models/userModel.js";
 import handleResponse from "../util/response.js";
 
@@ -10,7 +10,7 @@ import handleResponse from "../util/response.js";
 const getUsers = async (req, res, next) => {
     try {
         const users = await getAllUsersService();
-        handleResponse(res, 200, users, 'Users fetched successfully');
+        handleResponse(res, 200, users, "Users fetched successfully");
     } catch (error) {
         next(error);
     }
@@ -20,8 +20,8 @@ const getUsers = async (req, res, next) => {
 const getUserById = async (req, res, next) => {
     try {
         const user = await getUserByIdService(req.params.id);
-        if (!user) return handleResponse(res, 404, null, 'User not found');
-        handleResponse(res, 200, user, 'User fetched successfully');
+        if (!user) return handleResponse(res, 404, null, "User not found");
+        handleResponse(res, 200, user, "User fetched successfully");
     } catch (error) {
         next(error);
     }
@@ -34,16 +34,21 @@ const updateUser = async (req, res, next) => {
         // Get user from DB first
         const existingUser = await getUserByIdService(userId);
         if (!existingUser) {
-            return handleResponse(res, 404, null, 'User not found');
+            return handleResponse(res, 404, null, "User not found");
         }
 
         // Ownership check: email from token must match DB
         if (req.user.email !== existingUser.email) {
-            return handleResponse(res, 403, null, 'Forbidden: Not your account');
+            return handleResponse(
+                res,
+                403,
+                null,
+                "Forbidden: Not your account"
+            );
         }
         const user = await updateUserService(req.params.id, req.body);
-        if (!user) return handleResponse(res, 404, null, 'User not found');
-        handleResponse(res, 200, user, 'User updated successfully');
+        if (!user) return handleResponse(res, 404, null, "User not found");
+        handleResponse(res, 200, user, "User updated successfully");
     } catch (error) {
         next(error);
     }
@@ -57,16 +62,21 @@ const deleteUser = async (req, res, next) => {
         // Get user from DB
         const existingUser = await getUserByIdService(userId);
         if (!existingUser) {
-            return handleResponse(res, 404, null, 'User not found');
+            return handleResponse(res, 404, null, "User not found");
         }
 
         // Ownership check
         if (req.user.email !== existingUser.email) {
-            return handleResponse(res, 403, null, 'Forbidden: Not your account');
+            return handleResponse(
+                res,
+                403,
+                null,
+                "Forbidden: Not your account"
+            );
         }
         const deleted = await deleteUserService(req.params.id);
-        if (!deleted) return handleResponse(res, 404, null, 'User not found');
-        handleResponse(res, 200, null, 'User deleted successfully');
+        if (!deleted) return handleResponse(res, 404, null, "User not found");
+        handleResponse(res, 200, null, "User deleted successfully");
     } catch (error) {
         next(error);
     }
