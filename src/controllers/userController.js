@@ -5,6 +5,9 @@ import {
     updateUserService,
 } from "../models/userModel.js";
 import handleResponse from "../util/response.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Get all users
 const getUsers = async (req, res, next) => {
@@ -31,13 +34,11 @@ const getUserById = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
     try {
         const userId = req.params.id;
-        // Get user from DB first
         const existingUser = await getUserByIdService(userId);
         if (!existingUser) {
             return handleResponse(res, 404, null, "User not found");
         }
 
-        // Ownership check: email from token must match DB
         if (req.user.email !== existingUser.email) {
             return handleResponse(
                 res,
@@ -46,8 +47,17 @@ const updateUser = async (req, res, next) => {
                 "Forbidden: Not your account"
             );
         }
-        const user = await updateUserService(req.params.id, req.body);
-        if (!user) return handleResponse(res, 404, null, "User not found");
+
+        // If file uploaded, use its path
+        const profile_picture = req.file
+            ? `${process.env.BASE_URL}/uploads/${req.file.filename}`
+            : existingUser.profile_picture;
+        const user = await updateUserService(userId, {
+            username: req.body.username,
+            bio: req.body.bio,
+            profile_picture,
+        });
+
         handleResponse(res, 200, user, "User updated successfully");
     } catch (error) {
         next(error);

@@ -18,7 +18,6 @@ import {
     getThoughtComments,
     postThoughtComments,
 } from "../controllers/thoughtCommentController.js";
-import { validate } from "uuid";
 import { validatePostComment } from "../middlewares/validateComment.js";
 import {
     validatePostDislike,
@@ -32,6 +31,7 @@ import {
     postDislike,
     postLike,
 } from "../controllers/likedislikeController.js";
+import { upload } from "../middlewares/upload.js";
 
 const router = express.Router();
 
@@ -69,7 +69,12 @@ router.post(
 
 // PUT
 // user/:id
-router.put("/user/:id", checkAuth, validateUpdateUser, updateUser);
+router.put(
+    "/user/:id",
+    checkAuth,
+    upload.single("profile_picture"),
+    updateUser
+);
 
 // thoughts/:id
 router.put("/thought/:id", checkAuth, validateThought, updateThought);

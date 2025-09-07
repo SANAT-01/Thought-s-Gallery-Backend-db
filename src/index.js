@@ -9,6 +9,7 @@ import createFollowsTable from "./data/createFollowTable.js";
 import createCommentsTable from "./data/createCommentTable.js";
 import createLikesTable from "./data/createLikeTable.js";
 import createDislikesTable from "./data/createDislikeTable.js";
+import path from "path";
 
 const app = express();
 const port = 5173;
@@ -32,6 +33,8 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Routes
 app.use(authRoutes);
