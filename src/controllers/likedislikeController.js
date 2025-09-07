@@ -3,6 +3,8 @@ import {
     checkExistingLike,
     getDislikesByThoughtIdService,
     getLikesByThoughtIdService,
+    getuserDislikesService,
+    getuserLikesService,
     postDislikeService,
     postLikeService,
     removeDislikeService,
@@ -71,6 +73,31 @@ export const getThoughtDislikes = async (req, res, next) => {
         const { id: thoughtId } = req.params;
         const dislikes = await getDislikesByThoughtIdService(thoughtId);
         handleResponse(res, 200, dislikes, "Dislikes fetched successfully");
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getUserLikes = async (req, res, next) => {
+    try {
+        const { id: userId } = req.params;
+        const userLikes = await getuserLikesService(userId);
+        handleResponse(res, 200, userLikes, "User Likes fetched successfully");
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getUserDislikes = async (req, res, next) => {
+    try {
+        const { id: userId } = req.params;
+        const userLikes = await getuserDislikesService(userId);
+        handleResponse(
+            res,
+            200,
+            userLikes,
+            "User Dislikes fetched successfully"
+        );
     } catch (error) {
         next(error);
     }

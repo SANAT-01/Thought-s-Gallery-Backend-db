@@ -27,6 +27,8 @@ import {
 import {
     getThoughtDislikes,
     getThoughtLikes,
+    getUserDislikes,
+    getUserLikes,
     postDislike,
     postLike,
 } from "../controllers/likedislikeController.js";
@@ -37,6 +39,9 @@ const router = express.Router();
 // user
 router.get("/user", checkAuth, getUsers);
 router.get("/user/:id", checkAuth, getUserById);
+router.get("/user/:id/likes", checkAuth, getUserLikes);
+router.get("/user/:id/dislikes", checkAuth, getUserDislikes);
+
 // thoughts
 router.get("/thoughts", checkAuth, getThoughts);
 router.get("/thought/:id", checkAuth, getThoughtById);

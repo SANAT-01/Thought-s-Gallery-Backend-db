@@ -65,3 +65,41 @@ export const checkExistingDislike = async (thoughtId, userId) => {
     );
     return rows[0];
 };
+
+export const getuserLikesService = async (userId) => {
+    const { rows } = await pool.query(
+        `SELECT
+        t.id AS thought_id,
+        t.content,
+        t.user_id AS author_id,
+        l.user_id AS disliker_id -- You can select specific columns for clarity
+    FROM
+        thoughts t
+    JOIN
+        likes l ON t.id = l.thought_id
+    WHERE
+        -- Corrected line:
+        t.user_id = $1;`,
+        [userId]
+    );
+    return rows;
+};
+
+export const getuserDislikesService = async (userId) => {
+    const { rows } = await pool.query(
+        `SELECT
+        t.id AS thought_id,
+        t.content,
+        t.user_id AS author_id,
+        l.user_id AS disliker_id -- You can select specific columns for clarity
+    FROM
+        thoughts t
+    JOIN
+        dislikes l ON t.id = l.thought_id
+    WHERE
+        -- Corrected line:
+        t.user_id = $1;`,
+        [userId]
+    );
+    return rows;
+};

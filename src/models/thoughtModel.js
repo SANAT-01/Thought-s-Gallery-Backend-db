@@ -7,19 +7,25 @@ export const getThoughtsService = async (user_id) => {
         query = "SELECT * FROM thoughts WHERE user_id = $1";
         values.push(user_id);
     } else {
-        query = `SELECT
-        t.id,
-        t.content,
-        t.user_id,
-        t.created_at,
-        -- Subquery to count likes for this specific thought
-        (SELECT COUNT(*) FROM likes WHERE thought_id = t.id) AS likes,
-        -- Subquery to count dislikes for this specific thought
-        (SELECT COUNT(*) FROM dislikes WHERE thought_id = t.id) AS dislikes
-        FROM
-            thoughts t
-        ORDER BY
-        t.created_at DESC; -- Optional: order by most recent thoughts`;
+        query = `
+        SELECT
+    t.id,
+    t.content,
+    t.user_id,
+    t.created_at,
+    u.username, -- Added username from the users table
+    u.profile_picture, -- Also useful to grab the avatar URL
+    -- Subquery to count likes for this specific thought
+    (SELECT COUNT(*) FROM likes WHERE thought_id = t.id) AS likes,
+    -- Subquery to count dislikes for this specific thought
+    (SELECT COUNT(*) FROM dislikes WHERE thought_id = t.id) AS dislikes
+    FROM
+        thoughts t
+    -- Join with the users table to get the author's details
+    JOIN
+        users u ON t.user_id = u.id
+    ORDER BY
+        t.created_at DESC;`;
     }
 
     const result = await pool.query(query, values);
