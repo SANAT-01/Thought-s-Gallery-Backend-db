@@ -6,6 +6,7 @@ import {
 } from "../models/userModel.js";
 import handleResponse from "../util/response.js";
 import dotenv from "dotenv";
+import { put } from "@vercel/blob";
 
 dotenv.config();
 
@@ -34,11 +35,15 @@ const getUserById = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
     try {
         const userId = req.params.id;
+        const { username, bio } = req.body;
+
+        // Find existing user
         const existingUser = await getUserByIdService(userId);
         if (!existingUser) {
             return handleResponse(res, 404, null, "User not found");
         }
 
+        // Ownership check
         if (req.user.email !== existingUser.email) {
             return handleResponse(
                 res,
@@ -48,17 +53,31 @@ const updateUser = async (req, res, next) => {
             );
         }
 
-        // If file uploaded, use its path
-        const profile_picture = req.file
-            ? `${process.env.BASE_URL}/uploads/${req.file.filename}`
-            : existingUser.profile_picture;
-        const user = await updateUserService(userId, {
-            username: req.body.username,
-            bio: req.body.bio,
+        let profile_picture = existingUser.profile_picture;
+
+        // If image uploaded, send to Vercel Blob
+        if (req.file) {
+            const blob = await put(
+                `profile-images/${Date.now()}-${req.file.originalname}`,
+                req.file.buffer, // file buffer in memory
+                { access: "public", token: process.env.BLOB_READ_WRITE_TOKEN }
+            );
+
+            profile_picture = blob.url; // public blob URL
+        }
+
+        const updatedUser = await updateUserService(userId, {
+            username,
+            bio,
             profile_picture,
         });
 
-        handleResponse(res, 200, user, "User updated successfully");
+        return handleResponse(
+            res,
+            200,
+            updatedUser,
+            "User updated successfully"
+        );
     } catch (error) {
         next(error);
     }
