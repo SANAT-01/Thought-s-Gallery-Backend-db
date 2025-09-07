@@ -1,9 +1,8 @@
 import { createUserService, signInUserService } from "../models/authModel.js";
 import { createJSONToken } from "../util/auth.js";
 
-
 // Common response handler
-const handleResponse = (res, status, data = null, message = '') => {
+const handleResponse = (res, status, data = null, message = "") => {
     res.status(status).json({ success: status < 400, status, data, message });
 };
 
@@ -13,7 +12,12 @@ const createUser = async (req, res, next) => {
     try {
         const user = await createUserService({ username, email, password });
         const authToken = createJSONToken(user.email);
-        handleResponse(res, 201, { user, authToken }, 'User created successfully');
+        handleResponse(
+            res,
+            201,
+            { user, authToken },
+            "User created successfully"
+        );
     } catch (error) {
         next(error);
     }
@@ -24,7 +28,12 @@ const signInUser = async (req, res, next) => {
     try {
         const user = await signInUserService(email, password);
         const authToken = createJSONToken(user.email);
-        handleResponse(res, 200, { user, authToken }, 'User signed in successfully');
+        handleResponse(
+            res,
+            200,
+            { user, authToken },
+            "User signed in successfully"
+        );
     } catch (error) {
         next(error);
     }
