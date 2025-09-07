@@ -1,4 +1,3 @@
-import e from "express";
 import { createThoughtService, getThoughtByIdService, getThoughtsService, updateThoughtService } from "../models/thoughtModel.js";
 import handleResponse from "../util/response.js";
 
