@@ -21,7 +21,7 @@ export const postLike = async (req, res, next) => {
             await removeLikeService(thoughtId, userId);
             handleResponse(
                 res,
-                201,
+                200,
                 existingLike,
                 "Thought unliked successfully"
             );

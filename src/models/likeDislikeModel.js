@@ -103,3 +103,13 @@ export const getuserDislikesService = async (userId) => {
     );
     return rows;
 };
+
+export const getLikesService = async () => {
+    const { rows } = await pool.query("SELECT * FROM likes");
+    return rows;
+};
+
+export const getDislikesService = async () => {
+    const { rows } = await pool.query("SELECT * FROM dislikes");
+    return rows;
+};
