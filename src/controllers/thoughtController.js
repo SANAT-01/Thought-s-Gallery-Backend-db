@@ -9,8 +9,9 @@ import handleResponse from "../util/response.js";
 // Get thoughts
 export const getThoughts = async (req, res, next) => {
     try {
-        const { user_id } = req.query;
-        const thoughts = await getThoughtsService(user_id);
+        const { user_id, limit = 5, offset = 0 } = req.query; // Use default values
+
+        const thoughts = await getThoughtsService(user_id, limit, offset);
         handleResponse(res, 200, thoughts, "Thoughts retrieved successfully");
     } catch (error) {
         next(error);

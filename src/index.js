@@ -10,34 +10,26 @@ import createCommentsTable from "./data/createCommentTable.js";
 import createLikesTable from "./data/createLikeTable.js";
 import createDislikesTable from "./data/createDislikeTable.js";
 import path from "path";
+import cors from "cors"; // <-- Import the cors package
 
 const app = express();
 const port = 5173;
 
+// Configure CORS
+const corsOptions = {
+    origin: "http://localhost:3000",
+    credentials: true, // This is the crucial line for your error
+};
+app.use(cors(corsOptions));
+
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-    // Allow frontend (Next.js at 3000) to call backend (5173)
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    // Allow all needed HTTP methods
-    res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-    );
-    // Allow headers
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
-    // Handle preflight requests
-    if (req.method === "OPTIONS") {
-        return res.sendStatus(200);
-    }
-    next();
-});
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Routes
-app.use(authRoutes);
+app.use("/api", authRoutes);
 app.use("/api", apiRoutes);
 
 // --- Database Initialization ---

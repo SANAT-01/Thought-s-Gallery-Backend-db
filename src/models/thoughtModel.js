@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 
-export const getThoughtsService = async (user_id) => {
-    const values = [];
+export const getThoughtsService = async (user_id, limit, offset) => {
+    let values = [];
     let query = `
     SELECT
         t.id,
@@ -50,12 +50,13 @@ export const getThoughtsService = async (user_id) => {
 
     // Add a WHERE clause to filter by user if requested
     if (user_id) {
-        query += " WHERE t.user_id = $1";
-        values.push(user_id);
+        query +=
+            " WHERE t.user_id = $1 ORDER BY t.created_at DESC LIMIT $2 OFFSET $3;";
+        values = [user_id, limit, offset];
+    } else {
+        query += ` ORDER BY t.created_at DESC LIMIT $1 OFFSET $2;`;
+        values = [limit, offset];
     }
-
-    query += ` ORDER BY t.created_at DESC;`;
-
     const result = await pool.query(query, values);
     return result.rows;
 };
