@@ -1,7 +1,6 @@
 import pool from "../config/db.js";
 
 export const postLikeService = async (thoughtId, userId) => {
-    console.log(thoughtId, userId);
     const { rows } = await pool.query(
         "INSERT INTO likes (thought_id, user_id) VALUES ($1, $2) RETURNING *",
         [thoughtId, userId]
@@ -10,7 +9,6 @@ export const postLikeService = async (thoughtId, userId) => {
 };
 
 export const postDislikeService = async (thoughtId, userId) => {
-    console.log(thoughtId, userId);
     const { rows } = await pool.query(
         "INSERT INTO dislikes (thought_id, user_id) VALUES ($1, $2) RETURNING *",
         [thoughtId, userId]

@@ -5,7 +5,6 @@ import {
     getUsers,
     updateUser,
 } from "../controllers/userController.js";
-import { validateUpdateUser } from "../middlewares/userValidate.js";
 import { checkAuth } from "../util/auth.js";
 import {
     getThoughtById,

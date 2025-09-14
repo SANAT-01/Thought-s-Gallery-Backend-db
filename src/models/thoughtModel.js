@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 
-export const getThoughtsService = async (user_id) => {
-    const values = [];
+export const getThoughtsService = async (user_id, limit, offset) => {
+    let values = [];
     let query = `
     SELECT
         t.id,
@@ -17,7 +17,7 @@ export const getThoughtsService = async (user_id) => {
         )
         FROM likes l
         JOIN users lu ON l.user_id = lu.id
-        WHERE l.thought_id = t.id) AS liked_by_users,
+        WHERE l.thought_id = t.id) AS liked_by,
         
         -- Get a JSON array of all disliked users' details
         (SELECT COALESCE(
@@ -26,7 +26,7 @@ export const getThoughtsService = async (user_id) => {
         )
         FROM dislikes d
         JOIN users du ON d.user_id = du.id
-        WHERE d.thought_id = t.id) AS disliked_by_users,
+        WHERE d.thought_id = t.id) AS disliked_by,
         
         -- Get a JSON array of all comments for the thought, with user details
         (SELECT COALESCE(
@@ -50,25 +50,59 @@ export const getThoughtsService = async (user_id) => {
 
     // Add a WHERE clause to filter by user if requested
     if (user_id) {
-        query += " WHERE t.user_id = $1";
-        values.push(user_id);
+        query +=
+            " WHERE t.user_id = $1 ORDER BY t.created_at DESC LIMIT $2 OFFSET $3;";
+        values = [user_id, limit, offset];
+    } else {
+        query += ` ORDER BY t.created_at DESC LIMIT $1 OFFSET $2;`;
+        values = [limit, offset];
     }
-
-    query += ` ORDER BY t.created_at DESC;`;
-
     const result = await pool.query(query, values);
     return result.rows;
 };
 
-export const getThoughtByIdService = async (id) => {
+export const getThoughtByIdService = async ({ id, userId }) => {
     const { rows } = await pool.query(
         `
-        SELECT t.id, t.content, t.user_id, t.created_at, u.username, u.profile_picture
-        FROM thoughts t
+        SELECT
+            t.id,
+            t.content,
+            t.user_id,
+            t.created_at,
+            u.username,
+            u.profile_picture,
+            
+            -- Subquery to get a JSON array of liked users
+            (SELECT COALESCE(
+                json_agg(json_build_object('id', lu.id, 'username', lu.username, 'profile_picture', lu.profile_picture)),
+                '[]'
+            )
+            FROM likes l
+            JOIN users lu ON l.user_id = lu.id
+            WHERE l.thought_id = t.id) AS liked_by,
+            
+            -- Subquery to get a JSON array of disliked users
+            (SELECT COALESCE(
+                json_agg(json_build_object('id', du.id, 'username', du.username, 'profile_picture', du.profile_picture)),
+                '[]'
+            )
+            FROM dislikes d
+            JOIN users du ON d.user_id = du.id
+            WHERE d.thought_id = t.id) AS disliked_by,
+
+            -- Subquery to determine the current user's action
+            (SELECT CASE
+                WHEN EXISTS(SELECT 1 FROM likes WHERE thought_id = t.id AND user_id = $2) THEN 'liked'
+                WHEN EXISTS(SELECT 1 FROM dislikes WHERE thought_id = t.id AND user_id = $2) THEN 'disliked'
+                ELSE NULL
+            END) AS user_action
+        FROM
+            thoughts t
         JOIN
             users u ON t.user_id = u.id
-        WHERE t.id = $1`,
-        [id]
+        WHERE
+            t.id = $1;`,
+        [id, userId]
     );
     return rows[0];
 };

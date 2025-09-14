@@ -1,15 +1,20 @@
 import pool from "../config/db.js";
 
-export const getCommentsByThoughtIdService = async (thoughtId) => {
+export const getCommentsByThoughtIdService = async (
+    thoughtId,
+    limit,
+    offset
+) => {
+    // Add OFFSET and LIMIT clauses to the query
     const { rows } = await pool.query(
         `
         SELECT
-        c.*,
-        json_build_object(
-            'id', u.id,
-            'username', u.username,
-            'profile_picture', u.profile_picture
-        ) AS user
+            c.*,
+            json_build_object(
+                'id', u.id,
+                'username', u.username,
+                'profile_picture', u.profile_picture
+            ) AS user
         FROM
             comments c
         JOIN
@@ -17,8 +22,9 @@ export const getCommentsByThoughtIdService = async (thoughtId) => {
         WHERE
             thought_id = $1
         ORDER BY
-            c.created_at DESC;`,
-        [thoughtId]
+            c.created_at DESC
+        LIMIT $2 OFFSET $3;`, // Use placeholders for limit and offset
+        [thoughtId, limit, offset] // Pass the parameters to the query
     );
     return rows;
 };
@@ -28,7 +34,6 @@ export const postCommentToThoughtService = async (
     userId,
     content
 ) => {
-    console.log(thoughtId, userId, content);
     const { rows } = await pool.query(
         `INSERT INTO comments (thought_id, user_id, content)
         VALUES ($1, $2, $3)
