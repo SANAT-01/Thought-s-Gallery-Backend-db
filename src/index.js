@@ -17,7 +17,7 @@ const port = 5173;
 
 // Configure CORS
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://thought-s-gallery.vercel.app"],
     credentials: true, // This is the crucial line for your error
 };
 app.use(cors(corsOptions));
