@@ -7,7 +7,6 @@ import handleResponse from "../util/response.js";
 export const getThoughtComments = async (req, res, next) => {
     try {
         const { id } = req.params;
-        console.log(req.query);
         const { limit = 5, offset = 0 } = req.query; // Use default values
 
         const comments = await getCommentsByThoughtIdService(id, limit, offset);

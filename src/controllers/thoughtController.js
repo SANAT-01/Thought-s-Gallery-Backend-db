@@ -19,8 +19,12 @@ export const getThoughts = async (req, res, next) => {
 };
 
 export const getThoughtById = async (req, res, next) => {
+    const { userId } = req.query;
     try {
-        const thought = await getThoughtByIdService(req.params.id);
+        const thought = await getThoughtByIdService({
+            id: req.params.id,
+            userId,
+        });
         handleResponse(res, 200, thought, "Thought retrieved successfully");
     } catch (error) {
         next(error);

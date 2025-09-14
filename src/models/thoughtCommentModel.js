@@ -34,7 +34,6 @@ export const postCommentToThoughtService = async (
     userId,
     content
 ) => {
-    console.log(thoughtId, userId, content);
     const { rows } = await pool.query(
         `INSERT INTO comments (thought_id, user_id, content)
         VALUES ($1, $2, $3)
